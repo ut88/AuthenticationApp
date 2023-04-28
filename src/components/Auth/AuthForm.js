@@ -18,11 +18,13 @@ const passwordInputRef= useRef();
     event.preventDefault();
     const enteredEmail =emailInputRef.current.value;
     const enteredPassword=passwordInputRef.current.value;
-   
+     let url;
     if(isLogin){
-
+        url='https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyD3H70FTTwTGSuNuJjexlHiIPj4MAsZR10'
     }else{
-       fetch('https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD3H70FTTwTGSuNuJjexlHiIPj4MAsZR10',
+        url='https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD3H70FTTwTGSuNuJjexlHiIPj4MAsZR10'
+    }
+    fetch(url,
        {
         method:'POST',
         body:JSON.stringify({
@@ -36,18 +38,25 @@ const passwordInputRef= useRef();
        }).then(res=>{
         setSend(false)
         if(res.ok){
-          //...
+          return res.json();
         }else{
          return res.json().then(data =>{
-            console.log(data.error.message);
-            alert(data.error.message);
-          })
-         
+          let errorMessage='Authentucation failed';
+          if(data&& data.error && data.error.message){
+            errorMessage=data.error.message;
+          }
+
+          throw new Error(errorMessage)
+            // console.log(errorMessage);
+            // alert( errorMessage);
+          }) 
         }
+       }).then((data)=>{
+        console.log(data);
+       }).catch((err)=>{
+          alert(err.message);
        })
-    }
-    
-  }
+    } 
 
   return (
     <section className={classes.auth}>
